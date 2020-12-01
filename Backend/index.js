@@ -5,13 +5,14 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require('express');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
-
+const graphqlHTTP = require('express-graphql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const schema = require('./schema/schema');
 const { frontendURL } = require('./config');
-const commonPart = require('./Routes/generalroutes');
-const restaurantRoute = require('./Routes/restaurantroutes');
-const customerRoute = require('./Routes/customerroutes');
+// const commonPart = require('./Routes/generalroutes');
+// const restaurantRoute = require('./Routes/restaurantroutes');
+// const customerRoute = require('./Routes/customerroutes');
 
 const app = express();
 const { auth } = require('./Functionality/passport');
@@ -46,10 +47,17 @@ app.use(function (req, res, next) {
   next();
 });
 app.use(express.static('public'));
-app.use('/general', commonPart);
+// app.use('/general', commonPart);
 
-app.use('/restaurant', restaurantRoute);
+// app.use('/restaurant', restaurantRoute);
 
-app.use('/customer', customerRoute);
+// app.use('/customer', customerRoute);
+app.use(
+  '/graphql',
+  graphqlHTTP({
+    schema,
+    graphiql: true,
+  }),
+);
 module.exports = app;
 app.listen(3001);
