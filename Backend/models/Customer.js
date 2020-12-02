@@ -5,7 +5,6 @@ const customerSchema = new mongoose.Schema({
   UserName: { type: String, required: true },
   FirstName: { type: String },
   LastName: { type: String },
-  ProfilePicURL: { type: String },
   Email: { type: String },
   Password: { type: String, required: true },
   PhoneNo: { type: Number },

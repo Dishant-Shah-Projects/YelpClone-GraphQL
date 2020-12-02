@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
+// const composeWithMongoose = require('graphql-compose-mongoose');
 
 const restaurantSchema = new mongoose.Schema({
   restaurantID: { type: Number, required: true },
   Name: { type: String },
-  PicURLs: [String],
   UserName: { type: String, required: true },
   Password: { type: String, required: true },
   PhoneNo: { type: Number },
@@ -22,7 +22,6 @@ const restaurantSchema = new mongoose.Schema({
       },
       DishName: { type: String },
       Mainingredients: { type: String },
-      DishIMG: { type: String },
       DishPrice: { type: Number },
       Description: { type: String },
       Category: { type: String },

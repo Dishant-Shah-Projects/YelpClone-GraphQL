@@ -8,17 +8,44 @@ const cookieParser = require('cookie-parser');
 const graphqlHTTP = require('express-graphql');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const schema = require('./schema/schema');
 const { frontendURL } = require('./config');
-// const commonPart = require('./Routes/generalroutes');
-// const restaurantRoute = require('./Routes/restaurantroutes');
-// const customerRoute = require('./Routes/customerroutes');
+const { mongoDB } = require('./config');
+
+const options = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  poolSize: 30,
+  bufferMaxEntries: 0,
+  useFindAndModify: false,
+};
+// single connection
+// eslint-disable-next-line no-unused-vars
+const options2 = {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  poolSize: 1,
+  bufferMaxEntries: 0,
+  useFindAndModify: false,
+};
+
+// eslint-disable-next-line no-unused-vars
+mongoose.connect(mongoDB, options, (err, res) => {
+  if (err) {
+    // eslint-disable-next-line no-console
+    console.log('MongoDB connection Failed', err);
+  } else {
+    // eslint-disable-next-line no-console
+    console.log('MongoDB Connected');
+  }
+});
 
 const app = express();
-const { auth } = require('./Functionality/passport');
+// const { auth } = require('./Functionality/passport');
 
 app.use(express.static('public'));
-auth();
+// auth();
 app.use(cors({ origin: frontendURL, credentials: true }));
 // use express session to maintain session data
 app.use(
