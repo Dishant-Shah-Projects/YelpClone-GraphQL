@@ -1,72 +1,72 @@
 /* eslint-disable new-cap */
-/* eslint-disable no-unused-vars */
+
 /* eslint-disable no-use-before-define */
-const mongoose = require('mongoose');
 const graphql = require('graphql');
-const { Customer } = require('../models/Customer');
-const { restaurant } = require('../models/Restaurant');
-const { order } = require('../models/order');
+const Customer = require('../models/Customer');
+const restaurant = require('../models/Restaurant');
+
+const { userSignup, userLogin } = require('../Functionality/generalFunctionalities');
+const {
+  profileUpdate,
+  restaurantOrder,
+  restaurantRatingAdd,
+  getOrders,
+  restaurantSearch,
+} = require('../Functionality/customerFunctionalities');
+const {
+  profileUpdate2,
+  menuAdd,
+  getOrders2,
+  orderUpdate,
+} = require('../Functionality/restaurantFunctionalities');
 
 const {
   GraphQLObjectType,
   GraphQLString,
   GraphQLSchema,
-  GraphQLID,
+  // GraphQLID,
   GraphQLInt,
   GraphQLList,
-  GraphQLNonNull,
+  // GraphQLNonNull,
+  GraphQLFloat,
 } = graphql;
 
-// dummy data
-const books = [
-  {
-    name: 'Name of the Wind',
-    genre: 'Fantasy',
-    id: '1',
-    authorId: '1',
-  },
-  {
-    name: 'The Final Empire',
-    genre: 'Fantasy',
-    id: '2',
-    authorId: '2',
-  },
-  {
-    name: 'The Hero of Ages',
-    genre: 'Fantasy',
-    id: '4',
-    authorId: '2',
-  },
-  {
-    name: 'The Long Earth',
-    genre: 'Sci-Fi',
-    id: '3',
-    authorId: '3',
-  },
-  {
-    name: 'The Colour of Magic',
-    genre: 'Fantasy',
-    id: '5',
-    authorId: '3',
-  },
-  {
-    name: 'The Light Fantastic',
-    genre: 'Fantasy',
-    id: '6',
-    authorId: '3',
-  },
-];
+const ResultType = new GraphQLObjectType({
+  name: 'Result',
+  fields: () => ({
+    Result: { type: GraphQLString },
+    Token: { type: GraphQLString },
+  }),
+});
+const orderitemtype = new GraphQLObjectType({
+  name: 'orderitem',
+  fields: () => ({
+    ItemID: { type: GraphQLInt },
+    DishName: { type: GraphQLString },
+    DishPrice: { type: GraphQLInt },
+    DishQuantity: { type: GraphQLInt },
+  }),
+});
+const orderType = new GraphQLObjectType({
+  name: 'Customer',
+  fields: () => ({
+    restaurantID: { type: GraphQLInt },
+    customerID: { type: GraphQLInt },
+    orderID: { type: GraphQLInt },
+    customerName: { type: GraphQLString },
+    restaurantName: { type: GraphQLString },
+    OrderType: { type: GraphQLString },
+    OrderStatus: { type: GraphQLString },
+    OrderDateTime: { type: GraphQLString },
+    Items: GraphQLList(orderitemtype),
+  }),
+});
 
-const authors = [
-  { name: 'Patrick Rothfuss', age: 44, id: '1' },
-  { name: 'Brandon Sanderson', age: 42, id: '2' },
-  { name: 'Terry Pratchett', age: 66, id: '3' },
-];
 const CustomerType = new GraphQLObjectType({
   name: 'Customer',
   fields: () => ({
-    name: { type: GraphQLString },
-    genre: { type: GraphQLString },
+    Result: { type: GraphQLString },
+    Role: { type: GraphQLString },
     customerID: { type: GraphQLInt },
     UserName: { type: GraphQLString },
     FirstName: { type: GraphQLString },
@@ -85,9 +85,32 @@ const CustomerType = new GraphQLObjectType({
     Headline: { type: GraphQLString },
   }),
 });
+const MenuType = new GraphQLObjectType({
+  name: 'Menu',
+  fields: () => ({
+    ItemID: { type: GraphQLInt },
+    DishName: { type: GraphQLString },
+    Mainingredients: { type: GraphQLString },
+    DishPrice: { type: GraphQLInt },
+    Description: { type: GraphQLString },
+    Category: { type: GraphQLString },
+  }),
+});
+const ReviewType = new GraphQLObjectType({
+  name: 'Review',
+  fields: () => ({
+    DatePosted: { type: GraphQLString },
+    Review: { type: GraphQLString },
+    Rating: { type: GraphQLInt },
+    customerID: { type: GraphQLString },
+    customerName: { type: GraphQLString },
+  }),
+});
+
 const RestaurantType = new GraphQLObjectType({
   name: 'Restaurant',
   fields: () => ({
+    Role: { type: GraphQLString },
     restaurantID: { type: GraphQLInt },
     Name: { type: GraphQLString },
     UserName: { type: GraphQLString },
@@ -96,30 +119,17 @@ const RestaurantType = new GraphQLObjectType({
     ContactEmail: { type: GraphQLString },
     PickMethod: { type: GraphQLString },
     Location: { type: GraphQLString },
-    Lat: { type: GraphQLInt },
-    Long: { type: GraphQLInt },
+    Lat: { type: GraphQLFloat },
+    Long: { type: GraphQLFloat },
     Cusine: { type: GraphQLString },
     Hours: { type: GraphQLString },
     Description: { type: GraphQLString },
-    Menu: [
-      {
-        ItemID: { type: GraphQLInt },
-        DishName: { type: GraphQLString },
-        Mainingredients: { type: GraphQLString },
-        DishPrice: { type: GraphQLInt },
-        Description: { type: GraphQLString },
-        Category: { type: GraphQLString },
-      },
-    ],
-    Reviews: [
-      {
-        DatePosted: { type: GraphQLString },
-        Review: { type: GraphQLString },
-        Rating: { type: GraphQLInt },
-        customerID: { type: GraphQLString },
-        customerName: { type: GraphQLString },
-      },
-    ],
+    Menu: {
+      type: GraphQLList(MenuType),
+    },
+    Reviews: {
+      type: GraphQLList(ReviewType),
+    },
   }),
 });
 
@@ -127,11 +137,48 @@ const RootQuery = new GraphQLObjectType({
   name: 'RootQueryType',
   description: 'Root Query',
   fields: {
-    book: {
+    customerProfile: {
       type: CustomerType,
       args: { customerID: { type: GraphQLString } },
-      resolve(parent, args) {
-        return 'apple';
+      async resolve(parent, args) {
+        const customer = await Customer.findOne({ customerID: args.customerID });
+        return customer;
+      },
+    },
+    restaurantProfile: {
+      type: RestaurantType,
+      args: { restaurantID: { type: GraphQLString } },
+      async resolve(parent, args) {
+        console.log(args);
+        const rest = await restaurant.findOne({ restaurantID: args.restaurantID });
+        console.log(rest);
+        return rest;
+      },
+    },
+    restaurantSearch: {
+      type: GraphQLList(RestaurantType),
+      args: {
+        term: { type: GraphQLString },
+        value: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        console.log(args);
+        const rest = await restaurantSearch(args);
+        console.log(rest);
+        return rest;
+      },
+      orders: {
+        type: GraphQLList(orderType),
+        args: { customerID: { type: GraphQLString }, restaurantID: { type: GraphQLString } },
+        async resolve(parent, args) {
+          let customer = null;
+          if (args.customerID) {
+            customer = await getOrders(args);
+          } else {
+            customer = await getOrders2(args);
+          }
+          return customer;
+        },
       },
     },
   },
@@ -141,30 +188,140 @@ const Mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
     signup: {
-      type: CustomerType,
+      type: ResultType,
       args: {
         FirstName: { type: GraphQLString },
         LastName: { type: GraphQLString },
         UserName: { type: GraphQLString },
         Password: { type: GraphQLString },
+        Location: { type: GraphQLString },
+        Role: { type: GraphQLString },
       },
-      resolve(parent, args) {
-        const ID = 1;
-        const author = new Customer({
-          First: args.name,
-          UserName: args.UserName,
-          Password: args.Password,
-          FirstName: args.FirstName,
-          LastName: args.LastName,
-          customerID: ID,
-        });
-        author.save((e, _data) => {
-          if (e) {
-            console.log(e);
-          }
-        });
-        console.log('Author', author);
-        return author;
+      async resolve(parent, args) {
+        const value = await userSignup(args);
+        console.log(value);
+        return value;
+      },
+    },
+    login: {
+      type: ResultType,
+      args: {
+        UserName: { type: GraphQLString },
+        Password: { type: GraphQLString },
+        Role: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        const value = await userLogin(args);
+        console.log(value);
+        return value;
+      },
+    },
+    restaurantOrder: {
+      type: ResultType,
+      args: {
+        restaurantID: { type: GraphQLInt },
+        customerID: { type: GraphQLInt },
+        orderID: { type: GraphQLInt },
+        customerName: { type: GraphQLString },
+        restaurantName: { type: GraphQLString },
+        OrderType: { type: GraphQLString },
+        OrderStatus: { type: GraphQLString },
+        OrderDateTime: { type: GraphQLString },
+        Items: GraphQLList(orderitemtype),
+      },
+      async resolve(parent, args) {
+        const value = await restaurantOrder(args);
+        console.log(value);
+        return value;
+      },
+    },
+    restaurantRating: {
+      type: ResultType,
+      args: {
+        DatePosted: { type: GraphQLString },
+        Review: { type: GraphQLString },
+        Rating: { type: GraphQLInt },
+        customerID: { type: GraphQLString },
+        customerName: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        const value = await restaurantRatingAdd(args);
+        console.log(value);
+        return value;
+      },
+    },
+    menuAddItem: {
+      type: ResultType,
+      args: {
+        restaurantID: { type: GraphQLInt },
+        DishName: { type: GraphQLString },
+        Mainingredients: { type: GraphQLString },
+        DishPrice: { type: GraphQLInt },
+        Description: { type: GraphQLString },
+        Category: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        const value = await menuAdd(args);
+        console.log(value);
+        return value;
+      },
+    },
+    orderUpdatestat: {
+      type: ResultType,
+      args: {
+        orderID: { type: GraphQLInt },
+        OrderStatus: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        const value = await orderUpdate(args);
+        console.log(value);
+        return value;
+      },
+    },
+    restaurantprofileupdate: {
+      type: ResultType,
+      args: {
+        restaurantID: { type: GraphQLInt },
+        Name: { type: GraphQLString },
+        UserName: { type: GraphQLString },
+        Password: { type: GraphQLString },
+        PhoneNo: { type: GraphQLInt },
+        ContactEmail: { type: GraphQLString },
+        PickMethod: { type: GraphQLString },
+        Location: { type: GraphQLString },
+        Cusine: { type: GraphQLString },
+        Hours: { type: GraphQLString },
+        Description: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        const value = await profileUpdate2(args);
+        console.log(value);
+        return value;
+      },
+    },
+    customerprofileupdate: {
+      type: ResultType,
+      args: {
+        customerID: { type: GraphQLInt },
+        UserName: { type: GraphQLString },
+        FirstName: { type: GraphQLString },
+        LastName: { type: GraphQLString },
+        Email: { type: GraphQLString },
+        Password: { type: GraphQLString },
+        PhoneNo: { type: GraphQLInt },
+        AboutMe: { type: GraphQLString },
+        ThingsILove: { type: GraphQLString },
+        Findme: { type: GraphQLString },
+        DOB: { type: GraphQLString },
+        City: { type: GraphQLString },
+        State: { type: GraphQLString },
+        Country: { type: GraphQLString },
+        Nickname: { type: GraphQLString },
+        Headline: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        // eslint-disable-next-line no-return-await
+        return await profileUpdate(args);
       },
     },
   },
