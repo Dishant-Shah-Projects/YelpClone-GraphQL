@@ -40,7 +40,7 @@ const menuAdd = async (req) => {
     } = req;
     const rest = await Restaurant.findOne({ restaurantID });
     const ItemID = 1 + rest.Menu.length;
-    Restaurant.findOneAndUpdate(
+    await Restaurant.findOneAndUpdate(
       { restaurantID },
       {
         $push: {

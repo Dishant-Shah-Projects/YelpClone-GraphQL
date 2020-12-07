@@ -8,7 +8,7 @@ const restaurant = require('../models/Restaurant');
 const { userSignup, userLogin } = require('../Functionality/generalFunctionalities');
 const {
   profileUpdate,
-  restaurantOrder,
+  // restaurantOrder,
   restaurantRatingAdd,
   getOrders,
   restaurantSearch,
@@ -36,6 +36,8 @@ const ResultType = new GraphQLObjectType({
   fields: () => ({
     Result: { type: GraphQLString },
     Token: { type: GraphQLString },
+    Token2: { type: GraphQLString },
+    Status: { type: GraphQLInt },
   }),
 });
 const orderitemtype = new GraphQLObjectType({
@@ -142,6 +144,16 @@ const RootQuery = new GraphQLObjectType({
       args: { customerID: { type: GraphQLString } },
       async resolve(parent, args) {
         const customer = await Customer.findOne({ customerID: args.customerID });
+        console.log(customer);
+        return customer;
+      },
+    },
+    customers: {
+      type: CustomerType,
+      args: { customerID: { type: GraphQLString } },
+      async resolve(parent, args) {
+        const customer = await Customer.findOne();
+        console.log(customer);
         return customer;
       },
     },
@@ -149,10 +161,33 @@ const RootQuery = new GraphQLObjectType({
       type: RestaurantType,
       args: { restaurantID: { type: GraphQLString } },
       async resolve(parent, args) {
+        console.log('Party');
         console.log(args);
         const rest = await restaurant.findOne({ restaurantID: args.restaurantID });
         console.log(rest);
         return rest;
+      },
+    },
+    restaurantReviews: {
+      type: GraphQLList(ReviewType),
+      args: { restaurantID: { type: GraphQLString } },
+      async resolve(parent, args) {
+        console.log('Party');
+        console.log(args);
+        const rest = await restaurant.findOne({ restaurantID: args.restaurantID });
+        console.log(rest);
+        return rest.Reviews;
+      },
+    },
+    restaurantMenu: {
+      type: GraphQLList(MenuType),
+      args: { restaurantID: { type: GraphQLString } },
+      async resolve(parent, args) {
+        console.log('Party');
+        console.log(args);
+        const rest = await restaurant.findOne({ restaurantID: args.restaurantID });
+        console.log(rest);
+        return rest.Menu;
       },
     },
     restaurantSearch: {
@@ -216,33 +251,32 @@ const Mutation = new GraphQLObjectType({
         return value;
       },
     },
-    restaurantOrder: {
-      type: ResultType,
-      args: {
-        restaurantID: { type: GraphQLInt },
-        customerID: { type: GraphQLInt },
-        orderID: { type: GraphQLInt },
-        customerName: { type: GraphQLString },
-        restaurantName: { type: GraphQLString },
-        OrderType: { type: GraphQLString },
-        OrderStatus: { type: GraphQLString },
-        OrderDateTime: { type: GraphQLString },
-        Items: GraphQLList(orderitemtype),
-      },
-      async resolve(parent, args) {
-        const value = await restaurantOrder(args);
-        console.log(value);
-        return value;
-      },
-    },
+    // restaurantOrder: {
+    //   type: ResultType,
+    //   args: {
+    //     restaurantID: { type: GraphQLInt },
+    //     customerID: { type: GraphQLInt },
+    //     orderID: { type: GraphQLInt },
+    //     customerName: { type: GraphQLString },
+    //     restaurantName: { type: GraphQLString },
+    //     OrderType: { type: GraphQLString },
+    //     OrderStatus: { type: GraphQLString },
+    //     OrderDateTime: { type: GraphQLString },
+    //     Items: GraphQLList(orderitemtype),
+    //   },
+    //   async resolve(parent, args) {
+    //     const value = await restaurantOrder(args);
+    //     console.log(value);
+    //     return value;
+    //   },
+    // },
     restaurantRating: {
       type: ResultType,
       args: {
-        DatePosted: { type: GraphQLString },
         Review: { type: GraphQLString },
-        Rating: { type: GraphQLInt },
+        Rating: { type: GraphQLString },
         customerID: { type: GraphQLString },
-        customerName: { type: GraphQLString },
+        restaurantID: { type: GraphQLString },
       },
       async resolve(parent, args) {
         const value = await restaurantRatingAdd(args);
@@ -253,16 +287,17 @@ const Mutation = new GraphQLObjectType({
     menuAddItem: {
       type: ResultType,
       args: {
-        restaurantID: { type: GraphQLInt },
+        restaurantID: { type: GraphQLString },
         DishName: { type: GraphQLString },
         Mainingredients: { type: GraphQLString },
-        DishPrice: { type: GraphQLInt },
+        DishPrice: { type: GraphQLString },
         Description: { type: GraphQLString },
         Category: { type: GraphQLString },
       },
       async resolve(parent, args) {
+        console.log(args);
         const value = await menuAdd(args);
-        console.log(value);
+        console.log('PARTY', value);
         return value;
       },
     },
@@ -281,11 +316,11 @@ const Mutation = new GraphQLObjectType({
     restaurantprofileupdate: {
       type: ResultType,
       args: {
-        restaurantID: { type: GraphQLInt },
+        restaurantID: { type: GraphQLString },
         Name: { type: GraphQLString },
         UserName: { type: GraphQLString },
         Password: { type: GraphQLString },
-        PhoneNo: { type: GraphQLInt },
+        PhoneNo: { type: GraphQLString },
         ContactEmail: { type: GraphQLString },
         PickMethod: { type: GraphQLString },
         Location: { type: GraphQLString },
@@ -302,7 +337,7 @@ const Mutation = new GraphQLObjectType({
     customerprofileupdate: {
       type: ResultType,
       args: {
-        customerID: { type: GraphQLInt },
+        customerID: { type: GraphQLString },
         UserName: { type: GraphQLString },
         FirstName: { type: GraphQLString },
         LastName: { type: GraphQLString },
@@ -321,7 +356,9 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         // eslint-disable-next-line no-return-await
-        return await profileUpdate(args);
+        const value = await profileUpdate(args);
+        console.log(value);
+        return value;
       },
     },
   },

@@ -16,10 +16,10 @@ class OrdersPage extends Component {
         
         //if not logged in go to login page
         let redirectVar = null;
-        if(cookie.load('customer')){
+        if(cookie.load('Customer')){
             return <UserOrders></UserOrders>
         }
-        else if(cookie.load('restaurant')){
+        else if(cookie.load('Restaurant')){
             return <RestaurantOrders></RestaurantOrders>
         }
         else{

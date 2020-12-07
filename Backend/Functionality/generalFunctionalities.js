@@ -14,9 +14,7 @@ const Restaurant = require('../models/Restaurant');
 const userSignup = async (req) => {
   const retval = {};
   try {
-    const {
-      FirstName, UserName, Password, Role,
-    } = req;
+    const { FirstName, UserName, Password, Role } = req;
     if (Role === 'Restaurant') {
       let Lat = null;
       let Long = null;
@@ -40,7 +38,8 @@ const userSignup = async (req) => {
         Lat,
         Long,
       });
-      restaurant.save();
+      await restaurant.save();
+      retval.Status = 500;
       retval.Result = 'RestaurantAdded';
       return retval;
     }
@@ -55,11 +54,13 @@ const userSignup = async (req) => {
       LastName: req.LastName,
       Password: hashedPassword,
     });
-    custom.save();
+    await custom.save();
+    retval.Status = 200;
     retval.Result = 'Customer Added';
     return retval;
   } catch (error) {
     console.log(error);
+    retval.Status = 500;
     retval.Result = 'Error';
     return retval;
   }
@@ -73,8 +74,10 @@ const userLogin = async (req) => {
       const user = await Restaurant.findOne({ UserName });
       console.log(user);
       if (user && (await bcrypt.compare(Password, user.Password))) {
-        retval.Result = 'Customer Added';
+        retval.Status = 200;
+        retval.Result = 'Login Successful';
         retval.Token = user.restaurantID;
+        retval.Token2 = Role;
         return retval;
       } else if (user) {
         retval.Result = 'Incorrect Password';
@@ -86,19 +89,24 @@ const userLogin = async (req) => {
     } else {
       const user = await Customer.findOne({ UserName });
       if (user && (await bcrypt.compare(Password, user.Password))) {
-        retval.Result = 'Customer Added';
+        retval.Status = 200;
+        retval.Result = 'Login Successful';
+        retval.Token2 = Role;
         retval.Token = user.customerID;
         return retval;
       } else if (user) {
         retval.Result = 'Incorrecct Password';
+        retval.Status = 402;
         return retval;
       } else {
         retval.Result = 'Incorrecct Credentials';
+        retval.Status = 401;
         return retval;
       }
     }
   } catch {
     retval.Result = 'Error';
+    retval.Status = 500;
     return retval;
   }
 };

@@ -27,8 +27,8 @@ export class MapContainer extends Component {
         if(this.state.stores){
       return this.state.stores.map((store, index) => {
         return <Marker key={index} id={index} position={{
-         lat: store.Restaurantlat,
-         lng: store.Restaurantlng
+         lat: store.Lat,
+         lng: store.Long
        }}
        onClick={() => console.log("You clicked me!")} />
       })

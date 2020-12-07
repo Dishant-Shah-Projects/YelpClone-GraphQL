@@ -11,6 +11,7 @@ const profileUpdate = async (req) => {
   const retval = {};
   try {
     const { customerID } = req;
+    console.log(req);
     await Customer.findOneAndUpdate(
       { customerID },
       {
@@ -24,7 +25,7 @@ const profileUpdate = async (req) => {
         retval.Result = 'Customer Updates';
         console.log(retval);
         return retval;
-      },
+      }
     );
   } catch {
     retval.Result = 'error';
@@ -63,15 +64,15 @@ const restaurantOrder = async (req) => {
 };
 const restaurantRatingAdd = async (req) => {
   try {
-    const {
-      restaurantID, Review, Rating, customerID, customerName,
-    } = req;
+    const { restaurantID, Review, Rating, customerID } = req;
+    const cust = await Customer.findOne({ customerID });
+
     const review = {
       DatePosted: Date.now(),
       Review,
       Rating,
       customerID,
-      customerName,
+      customerName: `${cust.FirstName} ${cust.LastName}`,
     };
     Restaurant.findOneAndUpdate(
       { restaurantID },
@@ -92,7 +93,7 @@ const restaurantRatingAdd = async (req) => {
         retval.Result = 'Added';
         console.log(retval);
         return retval;
-      },
+      }
     );
   } catch {
     const retval = {};
@@ -104,9 +105,7 @@ const restaurantRatingAdd = async (req) => {
 
 const getOrders = async (req) => {
   try {
-    const {
-      CustomerID, OrderStatus, Sorted, Filtered,
-    } = req;
+    const { CustomerID, OrderStatus, Sorted, Filtered } = req;
     let eventlist = null;
     if (Sorted && Filtered) {
       eventlist = await order.find({ CustomerID, OrderStatus }).sort({ Date: 'descending' });
@@ -144,7 +143,7 @@ const restaurantSearch = async (req) => {
     } else if (term === 'Console') {
       user = await Restaurant.find({ Location: value }).select('-Password');
     } else {
-      user = await Restaurant.find({ PickMethod: value }).select('-Password');
+      user = await Restaurant.find().select('-Password');
     }
 
     if (user) {

@@ -58,7 +58,6 @@ class Navbar2 extends Component {
                         <Nav.Link ><Link to="/home">Home</Link></Nav.Link>
                         <Nav.Link ><Link to="/orders">Orders</Link></Nav.Link>
                         <Nav.Link ><Link to="/restaurantsearch">Restaurants</Link></Nav.Link>
-                        <Nav.Link ><Link to="/events">Events</Link></Nav.Link>
                         
                         </Nav>
                         {navLogin}

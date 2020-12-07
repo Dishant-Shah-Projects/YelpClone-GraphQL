@@ -9,9 +9,11 @@ import $ from 'jquery';
 import Popper from 'popper.js';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import download from './download.png'
-import RatingReview from '../restaurantsearchtab/ratingreview'
-import Menu from '../restaurant/menu'
+import download from './download.png';
+import RatingReview from '../restaurantsearchtab/ratingreview';
+import Menu from '../restaurant/menu';
+import { graphql, compose, withApollo } from "react-apollo";
+import { restaurantprofileQuery } from "../../queries/queries";
 class RestaurantPage extends Component{
     constructor(props){
         console.log(props.match.params);
@@ -27,51 +29,51 @@ class RestaurantPage extends Component{
 
     }
     componentDidMount(){
+        console.log(this.state);
     
-        const data = {
-            Restaurant : this.state.Restaurant};
-        axios.post('http://localhost:3001/restaurant',data)
-        
-                .then((response) => {
-                //update the state with the response data
-                console.log(response.data);
-                this.setState({
-                    Restinfo : response.data,
-                    loaded:true
-                });
-            });
-    }
+    this.props.client
+      .query({
+        query: restaurantprofileQuery,
+        variables: {
+          restaurantID: this.state.Restaurant.toString(),
+        },
+      })
+      .then((response) => {
+        console.log("Status Code : ", response);
+        this.setState({
+          restinfo: response.data.restaurantProfile,
+          loaded:true,
+        });
+      });
+  }
+    
     render(){
-        console.log(this.state.Restinfo)
-        var outlook=this.state.Restinfo[0]
-        console.log(outlook);
+
         var display =null;
         if(this.state.loaded){
            
-            console.log(this.state.Restinfo[0].RestaurantCusine);
             display =(
                 <Container>
                 <Jumbotron fluid>
             <Container>
                 <Row>
-                    
-                    <Col md={9} >   
-                    <Card >
-                        
-                    <Card.Title>{this.state.Restinfo[0].RestaurantName}</Card.Title>
-                        <a>{this.state.Restinfo[0].RestaurantCusine}</a>
-                        <a>{this.state.Restinfo[0].RestaurantDescription}</a>
-                        <a>{this.state.Restinfo[0].RestaurantLocation}</a>
-                        <a>{this.state.Restinfo[0].RestaurantHours}</a>
-                        
-                        
-                        <ListGroup className="list-group-flush">
-                            <ListGroupItem>Phone Number: {this.state.Restinfo[0].RestaurantPublicPhone}</ListGroupItem>
-                            <ListGroupItem>Email: {this.state.Restinfo[0].RestaurantPublicEmail}</ListGroupItem>
-                            
-                        </ListGroup>
-                        
-                    </Card>
+                <Col md={9}>
+                  <Card>
+                    <Card.Title> {this.state.restinfo.Name}</Card.Title>
+                    <a> {this.state.restinfo.Cusine}</a>
+                    <a> {this.state.restinfo.Description}</a>
+                    <a>{this.state.restinfo.Location}</a>
+                    <a>Hours: {this.state.restinfo.Hours}</a>
+
+                    <ListGroup className="list-group-flush">
+                      <ListGroupItem>
+                        Phone Number: {this.state.restinfo.PhoneNo}
+                      </ListGroupItem>
+                      <ListGroupItem>
+                        Email: {this.state.restinfo.ContactEmail}
+                      </ListGroupItem>
+                    </ListGroup>
+                  </Card>
                 </Col>
                 </Row>
             </Container>
@@ -100,7 +102,7 @@ class RestaurantPage extends Component{
                     <Tab.Pane eventKey="second">
                     <RatingReview restaurantemail={this.state.Restaurant}/>
                     </Tab.Pane>
-                    <Tab.Pane eventKey="second">
+                    <Tab.Pane eventKey="third">
                     <Menu rest={this.state.Restaurant}/>
                     </Tab.Pane>
                     
@@ -113,11 +115,9 @@ class RestaurantPage extends Component{
             </Container>
             )
         }
-        console.log(outlook);
         return(<>
         
         {display}
-        <Menu rest={this.state.Restaurant}/>
         
         
         
@@ -127,4 +127,8 @@ class RestaurantPage extends Component{
 
 
 }
-export default RestaurantPage;
+
+export default compose(
+  withApollo,
+  graphql(restaurantprofileQuery, { name: "restaurantprofileQuery" })
+)(RestaurantPage);
