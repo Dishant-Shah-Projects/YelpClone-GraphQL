@@ -8,7 +8,7 @@ const restaurant = require('../models/Restaurant');
 const { userSignup, userLogin } = require('../Functionality/generalFunctionalities');
 const {
   profileUpdate,
-  // restaurantOrder,
+  restaurantOrder,
   restaurantRatingAdd,
   getOrders,
   restaurantSearch,
@@ -22,6 +22,7 @@ const {
 
 const {
   GraphQLObjectType,
+  GraphQLInputObjectType,
   GraphQLString,
   GraphQLSchema,
   // GraphQLID,
@@ -41,6 +42,15 @@ const ResultType = new GraphQLObjectType({
   }),
 });
 const orderitemtype = new GraphQLObjectType({
+  name: 'orderitem',
+  fields: () => ({
+    ItemID: { type: GraphQLInt },
+    DishName: { type: GraphQLString },
+    DishPrice: { type: GraphQLInt },
+    DishQuantity: { type: GraphQLInt },
+  }),
+});
+const inputitemtype = new GraphQLInputObjectType({
   name: 'orderitem',
   fields: () => ({
     ItemID: { type: GraphQLInt },
@@ -168,6 +178,17 @@ const RootQuery = new GraphQLObjectType({
         return rest;
       },
     },
+    menuget: {
+      type: GraphQLList(MenuType),
+      args: { restaurantID: { type: GraphQLString } },
+      async resolve(parent, args) {
+        console.log('Party');
+        console.log(args);
+        const rest = await restaurant.findOne({ restaurantID: args.restaurantID });
+        console.log(rest);
+        return rest.Menu;
+      },
+    },
     restaurantReviews: {
       type: GraphQLList(ReviewType),
       args: { restaurantID: { type: GraphQLString } },
@@ -251,25 +272,20 @@ const Mutation = new GraphQLObjectType({
         return value;
       },
     },
-    // restaurantOrder: {
-    //   type: ResultType,
-    //   args: {
-    //     restaurantID: { type: GraphQLInt },
-    //     customerID: { type: GraphQLInt },
-    //     orderID: { type: GraphQLInt },
-    //     customerName: { type: GraphQLString },
-    //     restaurantName: { type: GraphQLString },
-    //     OrderType: { type: GraphQLString },
-    //     OrderStatus: { type: GraphQLString },
-    //     OrderDateTime: { type: GraphQLString },
-    //     Items: GraphQLList(orderitemtype),
-    //   },
-    //   async resolve(parent, args) {
-    //     const value = await restaurantOrder(args);
-    //     console.log(value);
-    //     return value;
-    //   },
-    // },
+    restaurantOrder: {
+      type: ResultType,
+      args: {
+        restaurantID: { type: GraphQLString },
+        customerID: { type: GraphQLString },
+        OrderType: { type: GraphQLString },
+        Items: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        const value = await restaurantOrder(args);
+        console.log(value);
+        return value;
+      },
+    },
     restaurantRating: {
       type: ResultType,
       args: {
@@ -279,6 +295,7 @@ const Mutation = new GraphQLObjectType({
         restaurantID: { type: GraphQLString },
       },
       async resolve(parent, args) {
+        console.log(args);
         const value = await restaurantRatingAdd(args);
         console.log(value);
         return value;
@@ -296,9 +313,9 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         console.log(args);
-        const value = await menuAdd(args);
+        // const value = await menuAdd(args);
         console.log('PARTY', value);
-        return value;
+        return await menuAdd(args);
       },
     },
     orderUpdatestat: {

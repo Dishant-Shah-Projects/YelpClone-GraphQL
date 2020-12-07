@@ -61,5 +61,28 @@ const restaurantSearchQuery = gql`
     }
   }
 `;
+const menuGetQuery = gql`
+  query($restaurantID: String) {
+    restaurantMenu(restaurantID: $restaurantID ) {
+      ItemID
+      DishName
+      Mainingredients
+      DishPrice
+      Description
+      Category
+    }
+  }
+`;
+const reviewGetQuery = gql`
+  query($restaurantID: String) {
+    restaurantReviews(restaurantID: $restaurantID ) {
+      DatePosted
+      Review
+      Rating
+      customerID
+      customerName
+    }
+  }
+`;
 
-export { getAuthorsQuery, getBooksQuery, profileQuery, restaurantSearchQuery ,restaurantprofileQuery};
+export { getAuthorsQuery, getBooksQuery, profileQuery, restaurantSearchQuery ,restaurantprofileQuery,menuGetQuery,reviewGetQuery};

@@ -35,10 +35,10 @@ class RatingReview extends Component {
   submitreview = () => {
     console.log(this.state);
     const data = {
-      Rating: this.state.rating,
+      Rating: this.state.rating.toString(),
       Review: this.state.review,
       customerID: this.state.customer,
-      restaurantID: this.state.restaurant,
+      restaurantID: this.state.restaurant.toString(),
     };
     console.log(data);
     this.props

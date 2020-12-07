@@ -42,10 +42,18 @@ const restaurantSearchMutation = gql`
 `;
 const ratingAddMutation = gql`
   mutation($Review: String,$Rating: String, $customerID: String,$restaurantID: String) {
-    restaurantRating(Review: $Review, Rating: $Rating, restaurantID: $restaurantID, customerID: $customerID ) {
+    restaurantRating(Review: $Review, Rating: $Rating, customerID: $customerID, restaurantID: $restaurantID ) {
+      Result
+    }
+  }
+`;
+const restaurantOrderMutation = gql`
+  mutation($restaurantID: String,$customerID: String, $OrderType: String,$Items: String) {
+    restaurantOrder(restaurantID: $restaurantID, customerID: $customerID, OrderType: $OrderType, Items: $Items ) {
       Result
     }
   }
 `;
 
-export { signupMutation, loginMutation,profileUpdateMutation ,profileUpdate2Mutation,ratingAddMutation};
+
+export { signupMutation, loginMutation,profileUpdateMutation ,profileUpdate2Mutation,ratingAddMutation,restaurantOrderMutation};

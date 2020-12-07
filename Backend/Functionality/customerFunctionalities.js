@@ -35,28 +35,32 @@ const profileUpdate = async (req) => {
 };
 
 const restaurantOrder = async (req) => {
+  const retval = {};
   try {
     const eventslist = await order.countDocuments();
-    const orderID = 1 + eventslist;
+    const cust = await Customer.findOne({ customerID: req.customerID });
+    const rest = await Restaurant.findOne({ restaurantID: req.restaurantID });
+
+    const orderID = 1;
     // eslint-disable-next-line new-cap
+    console.log(req.Items);
+    const Items = JSON.parse(req.Items);
     const newevent = new order({
       orderID,
-      ...req,
+      Items,
+      restaurantID: req.restaurantID,
+      customerID: req.customerID,
+      OrderType: req.OrderType,
+      OrderDateTime: Date.now(),
+      OrderStatus: 'Order Received',
+      customerName: `${cust.FirstName} ${cust.LastName}`,
+      restaurantName: rest.Name,
     });
-    newevent.save((err, model) => {
-      if (err) {
-        const retval = {};
-        retval.Result = 'Error';
-        console.log(retval);
-        return retval;
-      }
-      const retval = {};
-      retval.Result = 'Error';
-      console.log(retval);
-      return retval;
-    });
-  } catch {
-    const retval = {};
+    await newevent.save();
+    retval.Result = 'Order Received';
+    console.log(retval);
+    return retval;
+  } catch (error) {
     retval.Result = 'Error';
     console.log(retval);
     return retval;
@@ -82,19 +86,11 @@ const restaurantRatingAdd = async (req) => {
         },
       },
       { safe: true, upsert: true, new: true },
-      (err, model) => {
-        if (err) {
-          const retval = {};
-          retval.Result = 'Error';
-          console.log(retval);
-          return retval;
-        }
-        const retval = {};
-        retval.Result = 'Added';
-        console.log(retval);
-        return retval;
-      }
     );
+    const retval = {};
+    retval.Result = 'Added';
+    console.log(retval);
+    return retval;
   } catch {
     const retval = {};
     retval.Result = 'Error';
