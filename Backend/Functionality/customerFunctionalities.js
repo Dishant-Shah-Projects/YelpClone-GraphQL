@@ -16,22 +16,17 @@ const profileUpdate = async (req) => {
       { customerID },
       {
         ...req,
-      },
-      (err, results) => {
-        if (err) {
-          retval.Result = 'error';
-          return retval;
-        }
-        retval.Result = 'Customer Updates';
-        console.log(retval);
-        return retval;
       }
     );
+    retval.Result = 'Customer Profile Updated';
+    retval.Status = 200;
+    console.log(retval);
+    return retval;
   } catch {
+    retval.Status = 500;
     retval.Result = 'error';
     return retval;
   }
-  return retval;
 };
 
 const restaurantOrder = async (req) => {
@@ -41,7 +36,7 @@ const restaurantOrder = async (req) => {
     const cust = await Customer.findOne({ customerID: req.customerID });
     const rest = await Restaurant.findOne({ restaurantID: req.restaurantID });
 
-    const orderID = 1;
+    const orderID = eventslist + 1;
     // eslint-disable-next-line new-cap
     console.log(req.Items);
     const Items = JSON.parse(req.Items);
@@ -58,10 +53,12 @@ const restaurantOrder = async (req) => {
     });
     await newevent.save();
     retval.Result = 'Order Received';
+    retval.Status = 200;
     console.log(retval);
     return retval;
   } catch (error) {
     retval.Result = 'Error';
+    retval.Status = 200;
     console.log(retval);
     return retval;
   }
@@ -78,6 +75,7 @@ const restaurantRatingAdd = async (req) => {
       customerID,
       customerName: `${cust.FirstName} ${cust.LastName}`,
     };
+    console.log(review);
     Restaurant.findOneAndUpdate(
       { restaurantID },
       {
@@ -86,6 +84,15 @@ const restaurantRatingAdd = async (req) => {
         },
       },
       { safe: true, upsert: true, new: true },
+      (err, model) => {
+        if (err) {
+          console.log(err);
+          const retval = {};
+          retval.Result = 'Error';
+          console.log(retval);
+          return retval;
+        }
+      }
     );
     const retval = {};
     retval.Result = 'Added';
@@ -101,19 +108,18 @@ const restaurantRatingAdd = async (req) => {
 
 const getOrders = async (req) => {
   try {
-    const { CustomerID, OrderStatus, Sorted, Filtered } = req;
+    const { CustomerID, Sorted } = req;
     let eventlist = null;
-    if (Sorted && Filtered) {
-      eventlist = await order.find({ CustomerID, OrderStatus }).sort({ Date: 'descending' });
-    } else if (Sorted) {
-      eventlist = await order.find({ CustomerID }).sort({ Date: 'descending' });
-    } else if (Filtered) {
-      eventlist = await order.find({ CustomerID, OrderStatus }).sort({ Date: 'ascending' });
+    console.log(req);
+    if (Sorted === 'true') {
+      eventlist = await order.find({ CustomerID }).sort({ OrderDateTime: 'descending' });
     } else {
-      eventlist = await order.find({ CustomerID }).sort({ Date: 'ascending' });
+      eventlist = await order.find({ CustomerID }).sort({ OrderDateTime: 'ascending' });
     }
 
     if (eventlist) {
+      // eslint-disable-next-line no-empty
+
       return eventlist;
     }
     const retval = {};

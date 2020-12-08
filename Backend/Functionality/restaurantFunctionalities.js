@@ -25,7 +25,7 @@ const profileUpdate2 = async (req) => {
         retval.Result = 'Restaurant Updates';
         console.log(retval);
         return retval;
-      },
+      }
     );
   } catch {
     retval.Result = 'error';
@@ -35,9 +35,7 @@ const profileUpdate2 = async (req) => {
 };
 const menuAdd = async (req) => {
   try {
-    const {
-      restaurantID, DishName, Mainingredients, Description, DishPrice, Category,
-    } = req;
+    const { restaurantID, DishName, Mainingredients, Description, DishPrice, Category } = req;
     const rest = await Restaurant.findOne({ restaurantID });
     const ItemID = 1 + rest.Menu.length;
     await Restaurant.findOneAndUpdate(
@@ -54,39 +52,25 @@ const menuAdd = async (req) => {
           },
         },
       },
-      { safe: true, upsert: true, new: true },
-      (err, model) => {
-        if (err) {
-          const retval = {};
-          retval.Result = 'Error';
-          console.log(retval);
-          return retval;
-        }
-        const retval = {};
-        retval.Result = 'Added to Menu';
-        console.log(retval);
-        return retval;
-      },
+      { safe: true, upsert: true, new: true }
     );
+    const retval = {};
+    retval.Result = 'Added to Menu';
+    retval.Status = 200;
+    console.log(retval);
+    return retval;
   } catch {
     const retval = {};
     retval.Result = 'Error';
-    console.log(retval);
+    retval.Status = 500;
     return retval;
   }
 };
 const getOrders2 = async (req) => {
   try {
     const { restaurantID } = req;
-    order.find({ restaurantID }, (err, model) => {
-      if (err) {
-        const retval = {};
-        retval.Result = 'Error';
-        console.log(retval);
-        return retval;
-      }
-      return model;
-    });
+    const output = await order.find({ restaurantID });
+    return output;
   } catch {
     const retval = {};
     retval.Result = 'Error';
@@ -98,27 +82,21 @@ const getOrders2 = async (req) => {
 const orderUpdate = async (req) => {
   try {
     const { orderID, OrderStatus } = req;
-    order.findOneAndUpdate(
+    await order.findOneAndUpdate(
       { orderID },
       {
         OrderStatus,
-      },
-      (err, results) => {
-        if (err) {
-          const retval = {};
-          retval.Result = 'Error';
-          console.log(retval);
-          return retval;
-        }
-        const retval = {};
-        retval.Result = 'Successfully Updated';
-        console.log(retval);
-        return retval;
-      },
+      }
     );
+    const retval = {};
+    retval.Result = 'Successfully Updated';
+    retval.Status = 200;
+    console.log(retval);
+    return retval;
   } catch {
     const retval = {};
     retval.Result = 'Error';
+    retval.Status = 500;
     console.log(retval);
     return retval;
   }

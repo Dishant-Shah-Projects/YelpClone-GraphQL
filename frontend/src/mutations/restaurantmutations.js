@@ -23,4 +23,11 @@ const menuUploadMutation = gql`
     }
   }
 `;
-export {addBookMutation,profileUpdateMutation,menuUploadMutation};
+const updateStatusMutation = gql`
+    mutation ($orderID: String, $OrderStatus: String){
+        orderUpdatestat(orderID: $orderID, OrderStatus: $OrderStatus){
+          Result
+        }
+    }
+`;
+export {addBookMutation,profileUpdateMutation,updateStatusMutation,menuUploadMutation};

@@ -84,5 +84,46 @@ const reviewGetQuery = gql`
     }
   }
 `;
+const customerOrderQuery = gql`
+  query OrderQuery($customerID: String,$Sorted:String) {
+    OrderQuery(customerID: $customerID,Sorted: $Sorted ) {
+      restaurantID
+      orderID
+      restaurantName
+      OrderType
+      OrderStatus
+      OrderDateTime
+          restaurantID,
+    restaurantName
+    Items{
+      ItemID
+      DishName
+      DishPrice
+      DishQuantity
+    }
+    }
+  }
+`;
+const restaurantOrderQuery = gql`
+  query OrderQuery($restaurantID: String) {
+    OrderQuery(restaurantID: $restaurantID ) {
+      restaurantID
+      orderID
+      restaurantName
+      customerName
+      customerID
+      OrderType
+      OrderStatus
+      OrderDateTime
+    Items{
+      ItemID
+      DishName
+      DishPrice
+      DishQuantity
+    }
+    }
+  }
+`;
 
-export { getAuthorsQuery, getBooksQuery, profileQuery, restaurantSearchQuery ,restaurantprofileQuery,menuGetQuery,reviewGetQuery};
+
+export { getAuthorsQuery, getBooksQuery, profileQuery, restaurantSearchQuery ,restaurantprofileQuery,menuGetQuery,reviewGetQuery,customerOrderQuery,restaurantOrderQuery};

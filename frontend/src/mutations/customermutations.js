@@ -33,13 +33,7 @@ const profileUpdate2Mutation = gql`
     }
   }
 `;
-const restaurantSearchMutation = gql`
-  mutation($AboutMe: String,$ThingsILove: String, $Findme: String,$customerID: String,) {
-    customerprofileupdate(AboutMe: $AboutMe, ThingsILove: $ThingsILove, Findme: $Findme, customerID: $customerID ) {
-      Result
-    }
-  }
-`;
+
 const ratingAddMutation = gql`
   mutation($Review: String,$Rating: String, $customerID: String,$restaurantID: String) {
     restaurantRating(Review: $Review, Rating: $Rating, customerID: $customerID, restaurantID: $restaurantID ) {
@@ -51,9 +45,11 @@ const restaurantOrderMutation = gql`
   mutation($restaurantID: String,$customerID: String, $OrderType: String,$Items: String) {
     restaurantOrder(restaurantID: $restaurantID, customerID: $customerID, OrderType: $OrderType, Items: $Items ) {
       Result
+      Status
     }
   }
 `;
+
 
 
 export { signupMutation, loginMutation,profileUpdateMutation ,profileUpdate2Mutation,ratingAddMutation,restaurantOrderMutation};

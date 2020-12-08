@@ -24,6 +24,7 @@ const {
   GraphQLObjectType,
   GraphQLInputObjectType,
   GraphQLString,
+  GraphQLBoolean,
   GraphQLSchema,
   // GraphQLID,
   GraphQLInt,
@@ -50,17 +51,9 @@ const orderitemtype = new GraphQLObjectType({
     DishQuantity: { type: GraphQLInt },
   }),
 });
-const inputitemtype = new GraphQLInputObjectType({
-  name: 'orderitem',
-  fields: () => ({
-    ItemID: { type: GraphQLInt },
-    DishName: { type: GraphQLString },
-    DishPrice: { type: GraphQLInt },
-    DishQuantity: { type: GraphQLInt },
-  }),
-});
+
 const orderType = new GraphQLObjectType({
-  name: 'Customer',
+  name: 'Order',
   fields: () => ({
     restaurantID: { type: GraphQLInt },
     customerID: { type: GraphQLInt },
@@ -70,7 +63,7 @@ const orderType = new GraphQLObjectType({
     OrderType: { type: GraphQLString },
     OrderStatus: { type: GraphQLString },
     OrderDateTime: { type: GraphQLString },
-    Items: GraphQLList(orderitemtype),
+    Items: { type: new GraphQLList(orderitemtype) },
   }),
 });
 
@@ -211,6 +204,23 @@ const RootQuery = new GraphQLObjectType({
         return rest.Menu;
       },
     },
+    OrderQuery: {
+      type: GraphQLList(orderType),
+      args: {
+        customerID: { type: GraphQLString },
+        restaurantID: { type: GraphQLString },
+        Sorted: { type: GraphQLString },
+      },
+      async resolve(parent, args) {
+        let customer = null;
+        if (args.customerID) {
+          customer = await getOrders(args);
+        } else {
+          customer = await getOrders2(args);
+        }
+        return customer;
+      },
+    },
     restaurantSearch: {
       type: GraphQLList(RestaurantType),
       args: {
@@ -222,19 +232,6 @@ const RootQuery = new GraphQLObjectType({
         const rest = await restaurantSearch(args);
         console.log(rest);
         return rest;
-      },
-      orders: {
-        type: GraphQLList(orderType),
-        args: { customerID: { type: GraphQLString }, restaurantID: { type: GraphQLString } },
-        async resolve(parent, args) {
-          let customer = null;
-          if (args.customerID) {
-            customer = await getOrders(args);
-          } else {
-            customer = await getOrders2(args);
-          }
-          return customer;
-        },
       },
     },
   },
@@ -313,15 +310,15 @@ const Mutation = new GraphQLObjectType({
       },
       async resolve(parent, args) {
         console.log(args);
-        // const value = await menuAdd(args);
+        const value = await menuAdd(args);
         console.log('PARTY', value);
-        return await menuAdd(args);
+        return value;
       },
     },
     orderUpdatestat: {
       type: ResultType,
       args: {
-        orderID: { type: GraphQLInt },
+        orderID: { type: GraphQLString },
         OrderStatus: { type: GraphQLString },
       },
       async resolve(parent, args) {
