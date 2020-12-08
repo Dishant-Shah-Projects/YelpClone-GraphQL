@@ -20,7 +20,7 @@ const loginMutation = gql`
 `;
 
 const profileUpdateMutation = gql`
-  mutation($City: String,$State: String, $Country: String, $Nickname: String, $customerID: String, $Email: String,$PhoneNo: Int, $Headline: String, $DOB:String) {
+  mutation($City: String,$State: String, $Country: String, $Nickname: String, $customerID: String, $Email: String,$PhoneNo: String, $Headline: String, $DOB:String) {
     customerprofileupdate(City: $City, State: $State, Country: $Country, Nickname: $Nickname, customerID: $customerID, Email: $Email, PhoneNo: $PhoneNo, Headline: $Headline,DOB: $DOB) {
       Result
     }

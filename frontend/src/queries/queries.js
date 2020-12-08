@@ -89,6 +89,7 @@ const customerOrderQuery = gql`
     OrderQuery(customerID: $customerID,Sorted: $Sorted ) {
       restaurantID
       orderID
+      customerID
       restaurantName
       OrderType
       OrderStatus

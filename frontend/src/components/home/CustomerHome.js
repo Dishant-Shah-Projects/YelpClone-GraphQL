@@ -24,7 +24,7 @@ import { graphql, compose, withApollo } from "react-apollo";
 import {
   profileQuery,
 } from "../../queries/queries";
-import { loginMutation } from "../../mutations/customermutations";
+
 class CustomerHome extends Component {
   constructor(ownprops) {
     super(ownprops);

@@ -20,9 +20,9 @@ class ProfileUpdate2 extends Component {
       country: "",
       nickname: "",
       userEmail: cookie.load("user"),
-      email: null,
-      DOB: null,
-      phone: null,
+      email: "",
+      DOB: "",
+      phone: "",
 
       authFlag: false,
     };
@@ -116,9 +116,9 @@ class ProfileUpdate2 extends Component {
           Nickname: this.state.nickname,
           customerID: this.state.userEmail,
           Email: this.state.email,
-          PhoneNo: this.state.phone,
+          PhoneNo: this.state.phone.toString(),
           Headline: this.state.details,
-          DOB: this.state.DOB,
+          DOB: this.state.DOB.toString(),
         },
       })
       .then((response) => {

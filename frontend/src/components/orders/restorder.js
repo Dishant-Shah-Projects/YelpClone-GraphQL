@@ -101,16 +101,19 @@ class RestaurantOrder extends Component {
         return (
           <React.Fragment>
             <Card>
-              <Card.Title>Customer: {eve.customerName}</Card.Title>
-              <Link to={{ pathname: "/user", state: { foo: eve.customerID } }}>
-                {eve.restaurantName}
-              </Link>
+              <Card.Title>
+                {" "}
+                <Link
+                  to={{ pathname: "/user", state: { foo: eve.customerID } }}
+                >
+                  {eve.customerName}
+                </Link>
+              </Card.Title>
               <Card.Body>
                 <a>Order Status: {eve.OrderStatus}</a>
                 <br />
                 <a>Order Time: {eve.OrderDateTime}</a>
               </Card.Body>
-
               <ROrder orderinfo={eve} />
             </Card>
           </React.Fragment>

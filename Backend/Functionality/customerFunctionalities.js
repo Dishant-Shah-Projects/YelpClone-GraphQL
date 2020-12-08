@@ -108,7 +108,8 @@ const restaurantRatingAdd = async (req) => {
 
 const getOrders = async (req) => {
   try {
-    const { CustomerID, Sorted } = req;
+    let { CustomerID, Sorted } = req;
+    CustomerID = parseInt(CustomerID);
     let eventlist = null;
     console.log(req);
     if (Sorted === 'true') {

@@ -357,7 +357,7 @@ const Mutation = new GraphQLObjectType({
         LastName: { type: GraphQLString },
         Email: { type: GraphQLString },
         Password: { type: GraphQLString },
-        PhoneNo: { type: GraphQLInt },
+        PhoneNo: { type: GraphQLString },
         AboutMe: { type: GraphQLString },
         ThingsILove: { type: GraphQLString },
         Findme: { type: GraphQLString },
