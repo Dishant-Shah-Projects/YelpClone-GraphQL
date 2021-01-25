@@ -1,6 +1,7 @@
 # CMPE273Lab3Yelpclone
 
 
+This is a prototype for a Yelp inspired application built using the MERN stack that utilizes GRAPHQL for API calls. 
 
 The Following Steps need to be taken to deploy the following application:
 
